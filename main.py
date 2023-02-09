@@ -16,7 +16,7 @@ def get_vars() -> dict:
     return vars
 
 
-def replace(vars):
+def replace(vars: dict):
     input_file = open(INPUT_FILE, "r", encoding="utf-8")
     output_file = open(OUTPUT_FILE, "w", encoding="utf-8")
     file_copy = input_file.readlines()
