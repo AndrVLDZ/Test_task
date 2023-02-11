@@ -1,36 +1,42 @@
+from typing import List
+
+
 INPUT_FILE = "template_file.txt"
 OUTPUT_FILE = "processed_file.txt"
 
 
-def get_vars() -> dict:
-    input_file = open(INPUT_FILE, "r", encoding="utf-8")
+def read_file() -> List[str]:
+    with open(INPUT_FILE, "r", encoding="utf-8") as f:
+        return f.readlines()
+
+
+def write_file(line: str):
+    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+        f.write(line)
+
+
+def find_vars(lines: str) -> dict:
     vars: dict = {}
-    for line in input_file:
+    for line in lines:
         if line[0] == "*":
-            splitted_line = line.split(" ")  # ["*key", "value", etc.]
-            key = splitted_line[0].replace("*", "")
-            without_key = splitted_line[1:]  # ["value\n" or "value, value\n", etc.]
-            without_n = without_key[-1].strip()  # last "value" in list without \n
-            value = " ".join(without_key[:-1] + [without_n])  # ["Vasya" + "Ivanov"]
-            vars.update({key: value})
+            key, value = line.replace("*", "").replace("\n", "").split(" ", 1)
+            vars[key] = value
     return vars
 
 
-def replace(vars: dict):
-    input_file = open(INPUT_FILE, "r", encoding="utf-8")
-    output_file = open(OUTPUT_FILE, "w", encoding="utf-8")
-    file_copy = input_file.readlines()
+def replace(lines: List[str], vars: dict):
+    data = "".join(lines)
     for key, value in vars.items():
-        for line in file_copy:
-            if line.find(key):
-                processed_line = line.replace(f"!{key}!", value)
-                file_copy[file_copy.index(line)] = processed_line
-    output_file.write(" ".join(file_copy))
+        # edited variable is still iterable,
+        # I haven't found a solution to this problem yet 
+        data = data.replace(f"!{key}!", value)
+    write_file(data)
 
 
 def main():
-    vars = get_vars()
-    replace(vars)
+    lines = read_file()
+    vars = find_vars(lines)
+    replace(lines, vars)
 
 
 if __name__ == "__main__":
